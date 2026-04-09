@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "langgraph-agent"
+version = "0.1.0"
+description = "LangGraph agent with Ollama and external AI support"
+requires-python = ">=3.11"
+dependencies = [
+    "langgraph>=0.2.0",
+    "langchain>=0.3.0",
+    "langchain-core>=0.3.0",
+    "langchain-ollama>=0.2.0",
+    "langchain-openai>=0.2.0",
+    "langchain-anthropic>=0.3.0",
+    "python-dotenv>=1.0.0",
+    "rich>=13.0.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "mypy>=1.0"]
+
+[project.scripts]
+agent = "src.main:main"

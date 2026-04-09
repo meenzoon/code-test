@@ -163,7 +163,8 @@ secrets.json
 credentials.json
 
 # Claude Code local config (may contain session tokens)
-.claude/
+.claude/*
+!.claude/CLAUDE.md
 
 # codegen app config (may contain API keys)
 config.local.yaml

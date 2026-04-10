@@ -18,8 +18,75 @@ dependencies = [
     "rich>=13.0.0",
 ]
 
-[project.optional-dependencies]
-dev = ["pytest>=8.0", "mypy>=1.0"]
-
 [project.scripts]
 agent = "src.main:main"
+
+[dependency-groups]
+dev = [
+    {include-group = "test"},
+    {include-group = "lint"},
+]
+test = [
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0",
+    "pytest-asyncio>=0.21.0",
+]
+lint = [
+    "pre-commit>=4.5.1",
+    "ruff>=0.9.7",
+    "bandit[toml]>=1.8.3",
+]
+
+[tool.pre-commit]
+exclude = ["^tests/", "^docs/"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --tb=short --strict-markers"
+markers = [
+    "integration: integration tests",
+    "unit: unit tests",
+]
+
+[tool.ruff]
+target-version = "py312"
+line-length = 88
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "N",    # pep8-naming
+    "UP",   # pyupgrade
+    "B",    # flake8-bugbear
+    "S",    # flake8-bandit
+    "A",    # flake8-builtins
+    "C4",   # flake8-comprehensions
+    "SIM",  # flake8-simplify
+    "PTH",  # flake8-use-pathlib
+]
+ignore = [
+    "S101",  # assert 사용 허용 (테스트에서 필요)
+    "E501",  # line-too-long — ruff format이 처리
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["src"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**/*.py" = [
+    "S101",   # assert 허용
+    "S311",   # 난수 생성기 허용
+    "N802",   # 한국어 테스트 함수명 허용
+    "N806",   # ML 관례 대문자 변수(S, B, T 등) 허용
+]
+
+[tool.bandit]
+exclude_dirs = ["tests", ".venv"]
+skips = ["B101"]

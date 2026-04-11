@@ -19,3 +19,14 @@ def load_model(model: str | None = None) -> None:
     model = model or os.getenv("OLLAMA_MODEL", "llama3.2")
     client = _make_client()
     client.generate(model=model, prompt="", keep_alive=-1)
+
+
+def unload_model(model: str | None = None) -> None:
+    """Unload an Ollama model from memory.
+
+    Sends a request with keep_alive=0 to immediately release the model
+    from GPU/CPU memory.
+    """
+    model = model or os.getenv("OLLAMA_MODEL", "llama3.2")
+    client = _make_client()
+    client.generate(model=model, prompt="", keep_alive=0)

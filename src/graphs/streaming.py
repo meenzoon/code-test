@@ -1,9 +1,7 @@
 """Streaming variant — yields tokens as they arrive (Ollama / OpenAI SSE)."""
 
-import os
 from typing import Iterator
 
-from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
@@ -12,8 +10,6 @@ from typing_extensions import Annotated, TypedDict
 
 from src.llm import get_llm
 from src.tools import TOOLS
-
-load_dotenv()
 
 SYSTEM_PROMPT = """You are a helpful AI assistant with access to file system and shell tools.
 Use tools when needed to answer the user's request accurately."""
@@ -64,6 +60,9 @@ def stream_response(query: str) -> Iterator[str]:
 
 if __name__ == "__main__":
     import sys
+    from dotenv import load_dotenv
+
+    load_dotenv()
 
     query = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else "현재 디렉터리의 파일 목록을 알려주세요."
     print(f"Query: {query}\n")

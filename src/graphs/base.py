@@ -1,4 +1,4 @@
-"""LangGraph agent graph definition."""
+"""Basic ReAct agent graph."""
 
 from typing import Annotated
 
@@ -16,13 +16,9 @@ Use tools when needed to answer the user's request accurately.
 Think step-by-step and use the minimum number of tool calls required."""
 
 
-# ── State ────────────────────────────────────────────────────────────────────
-
 class AgentState(TypedDict):
     messages: Annotated[list[BaseMessage], add_messages]
 
-
-# ── Nodes ────────────────────────────────────────────────────────────────────
 
 def build_graph() -> StateGraph:
     llm = get_llm()
@@ -30,7 +26,6 @@ def build_graph() -> StateGraph:
 
     def agent_node(state: AgentState) -> dict:
         messages = state["messages"]
-        # Prepend system message if not already present
         if not messages or not isinstance(messages[0], SystemMessage):
             messages = [SystemMessage(content=SYSTEM_PROMPT)] + list(messages)
         response = llm_with_tools.invoke(messages)

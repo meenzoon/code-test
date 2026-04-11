@@ -34,7 +34,7 @@ def print_banner() -> None:
 
 def run_one_shot(query: str) -> None:
     """Run a single query and print the result."""
-    from src.graph import build_graph
+    from src.graphs import build_graph
 
     graph = build_graph()
     state = graph.invoke({"messages": [HumanMessage(content=query)]})
@@ -44,7 +44,7 @@ def run_one_shot(query: str) -> None:
 
 def run_interactive() -> None:
     """Start an interactive REPL session."""
-    from src.graph import build_graph
+    from src.graphs import build_graph
 
     print_banner()
     graph = build_graph()

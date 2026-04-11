@@ -1,6 +1,5 @@
-"""Tool definitions available to the agent."""
+"""File system tools — read, write, list."""
 
-import subprocess
 from pathlib import Path
 
 from langchain_core.tools import tool
@@ -28,25 +27,6 @@ def write_file(path: str, content: str) -> str:
 
 
 @tool
-def run_shell(command: str) -> str:
-    """Run a shell command and return stdout + stderr (max 4 KB)."""
-    try:
-        result = subprocess.run(
-            command,
-            shell=True,
-            capture_output=True,
-            text=True,
-            timeout=30,
-        )
-        output = result.stdout + result.stderr
-        return output[:4096] if output else "(no output)"
-    except subprocess.TimeoutExpired:
-        return "Error: command timed out after 30 seconds"
-    except Exception as e:
-        return f"Error: {e}"
-
-
-@tool
 def list_directory(path: str = ".") -> str:
     """List files and directories at the given path."""
     try:
@@ -57,4 +37,4 @@ def list_directory(path: str = ".") -> str:
         return f"Error listing directory: {e}"
 
 
-TOOLS = [read_file, write_file, run_shell, list_directory]
+FILE_TOOLS = [read_file, write_file, list_directory]

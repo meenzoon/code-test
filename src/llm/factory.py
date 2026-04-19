@@ -31,4 +31,29 @@ def get_llm() -> BaseChatModel:
             api_key=os.getenv("ANTHROPIC_API_KEY"),
         )
 
-    raise ValueError(f"Unknown AI_PROVIDER: {provider!r}. Choose ollama / openai / anthropic.")
+    # Claude Code harness — Ollama OpenAI-compat endpoint, API 키 불필요
+    if provider == "claude-code":
+        from langchain_openai import ChatOpenAI
+
+        base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+        return ChatOpenAI(
+            base_url=f"{base_url}/v1",
+            api_key="ollama",
+            model=os.getenv("CLAUDE_CODE_MODEL", "llama3.2"),
+        )
+
+    # Codex harness — Ollama OpenAI-compat endpoint, API 키 불필요
+    if provider == "codex":
+        from langchain_openai import ChatOpenAI
+
+        base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+        return ChatOpenAI(
+            base_url=f"{base_url}/v1",
+            api_key="ollama",
+            model=os.getenv("CODEX_MODEL", "llama3.2"),
+        )
+
+    raise ValueError(
+        f"Unknown AI_PROVIDER: {provider!r}. "
+        "Choose ollama / openai / anthropic / claude-code / codex."
+    )

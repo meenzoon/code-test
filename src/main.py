@@ -1,8 +1,11 @@
 """Interactive CLI for the LangGraph agent."""
 
+import json
 import os
 import sys
 from contextlib import contextmanager
+from datetime import datetime
+from pathlib import Path
 
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage
@@ -10,6 +13,7 @@ from rich.console import Console
 from rich.markdown import Markdown
 from rich.panel import Panel
 from rich.prompt import Prompt
+from rich.table import Table
 
 load_dotenv()
 
@@ -66,12 +70,58 @@ def run_one_shot(query: str) -> None:
     console.print(Markdown(last.content))
 
 
+def _print_help() -> None:
+    table = Table(show_header=False, box=None, padding=(0, 2))
+    table.add_column(style="bold")
+    table.add_column()
+    table.add_row("/quit", "exit")
+    table.add_row("/clear", "clear conversation history")
+    table.add_row("/history", "show conversation history")
+    table.add_row("/save [file]", "save conversation to JSON (default: conversation_<timestamp>.json)")
+    table.add_row("/tools", "list available tools")
+    table.add_row("/mode [base|multi|stream]", "switch graph mode")
+    console.print(table)
+
+
+def _show_history(history: list) -> None:
+    if not history:
+        console.print("[dim]No conversation history.[/dim]")
+        return
+    for i, msg in enumerate(history):
+        role = type(msg).__name__.replace("Message", "")
+        content = msg.content if isinstance(msg.content, str) else str(msg.content)
+        preview = content[:120] + "…" if len(content) > 120 else content
+        console.print(f"[dim]{i + 1}.[/dim] [bold]{role}:[/bold] {preview}")
+
+
+def _save_history(history: list, filename: str | None = None) -> str:
+    if filename is None:
+        filename = f"conversation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+    records = []
+    for msg in history:
+        role = type(msg).__name__.replace("Message", "").lower()
+        content = msg.content if isinstance(msg.content, str) else str(msg.content)
+        records.append({"role": role, "content": content})
+    Path(filename).write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8")
+    return filename
+
+
+def _build_graph(mode: str):
+    if mode == "multi":
+        from src.graphs.multiagent import build_multiagent_graph
+        return build_multiagent_graph()
+    if mode == "stream":
+        from src.graphs.streaming import build_streaming_graph
+        return build_streaming_graph()
+    from src.graphs import build_graph
+    return build_graph()
+
+
 def run_interactive() -> None:
     """Start an interactive REPL session."""
-    from src.graphs import build_graph
-
     print_banner()
-    graph = build_graph()
+    mode = "base"
+    graph = _build_graph(mode)
     history: list = []
 
     with _ollama_session():
@@ -90,16 +140,34 @@ def run_interactive() -> None:
                 break
 
             if user_input == "/help":
-                console.print(
-                    "[bold]/quit[/bold]  — exit\n"
-                    "[bold]/clear[/bold] — clear conversation history\n"
-                    "[bold]/tools[/bold] — list available tools"
-                )
+                _print_help()
                 continue
 
             if user_input == "/clear":
                 history.clear()
                 console.print("[dim]History cleared.[/dim]")
+                continue
+
+            if user_input == "/history":
+                _show_history(history)
+                continue
+
+            if user_input.startswith("/save"):
+                parts = user_input.split(maxsplit=1)
+                fname = parts[1] if len(parts) > 1 else None
+                saved = _save_history(history, fname)
+                console.print(f"[dim]Saved to {saved}[/dim]")
+                continue
+
+            if user_input.startswith("/mode"):
+                parts = user_input.split(maxsplit=1)
+                if len(parts) < 2 or parts[1] not in ("base", "multi", "stream"):
+                    console.print("[dim]Usage: /mode [base|multi|stream][/dim]")
+                else:
+                    mode = parts[1]
+                    graph = _build_graph(mode)
+                    history.clear()
+                    console.print(f"[dim]Switched to [bold]{mode}[/bold] mode. History cleared.[/dim]")
                 continue
 
             if user_input == "/tools":

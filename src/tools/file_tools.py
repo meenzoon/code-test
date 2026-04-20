@@ -37,4 +37,32 @@ def list_directory(path: str = ".") -> str:
         return f"Error listing directory: {e}"
 
 
-FILE_TOOLS = [read_file, write_file, list_directory]
+@tool
+def append_file(path: str, content: str) -> str:
+    """Append content to an existing file (or create it if it doesn't exist)."""
+    try:
+        p = Path(path)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        with p.open("a", encoding="utf-8") as f:
+            f.write(content)
+        return f"Appended {len(content)} characters to {path}"
+    except Exception as e:
+        return f"Error appending to file: {e}"
+
+
+@tool
+def delete_file(path: str) -> str:
+    """Delete a file at the given path."""
+    try:
+        p = Path(path)
+        if not p.exists():
+            return f"Error: {path} does not exist"
+        if p.is_dir():
+            return f"Error: {path} is a directory, not a file"
+        p.unlink()
+        return f"Deleted {path}"
+    except Exception as e:
+        return f"Error deleting file: {e}"
+
+
+FILE_TOOLS = [read_file, write_file, append_file, delete_file, list_directory]

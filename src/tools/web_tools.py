@@ -1,11 +1,11 @@
-"""Web tools — search the web via DuckDuckGo (no API key required)."""
+"""웹 검색 도구 — DuckDuckGo를 이용한 검색 (API 키 불필요)."""
 
 from langchain_core.tools import tool
 
 
 @tool
 def search_web(query: str, max_results: int = 5) -> str:
-    """Search the web using DuckDuckGo and return a summary of top results."""
+    """DuckDuckGo로 웹을 검색하고 상위 결과를 마크다운 형식으로 반환한다."""
     try:
         from duckduckgo_search import DDGS
 
@@ -24,4 +24,5 @@ def search_web(query: str, max_results: int = 5) -> str:
         return f"Search error: {e}"
 
 
+# 웹 검색 도구 목록
 WEB_TOOLS = [search_web]

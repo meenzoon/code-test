@@ -1,4 +1,4 @@
-"""Interactive CLI for the LangGraph agent."""
+"""LangGraph 에이전트 CLI 진입점 — Rich 기반 대화형 REPL과 단발 쿼리 모드를 제공한다."""
 
 import json
 import os
@@ -26,7 +26,7 @@ def _is_ollama() -> bool:
 
 @contextmanager
 def _ollama_session():
-    """Load the Ollama model on enter, unload on exit. No-op for other providers."""
+    """Ollama 사용 시 모델을 로드하고, 종료 시 언로드하는 컨텍스트 매니저. 다른 제공자에서는 무동작."""
     if not _is_ollama():
         yield
         return
@@ -43,6 +43,7 @@ def _ollama_session():
 
 
 def print_banner() -> None:
+    """현재 제공자와 모델 정보를 시작 배너로 출력한다."""
     provider = os.getenv("AI_PROVIDER", "ollama").upper()
     model = {
         "OLLAMA": os.getenv("OLLAMA_MODEL", "llama3.2"),
@@ -60,7 +61,7 @@ def print_banner() -> None:
 
 
 def run_one_shot(query: str) -> None:
-    """Run a single query and print the result."""
+    """단일 쿼리를 처리하고 결과를 출력한 뒤 종료한다."""
     from src.graphs import build_graph
 
     graph = build_graph()
@@ -71,6 +72,7 @@ def run_one_shot(query: str) -> None:
 
 
 def _print_help() -> None:
+    """사용 가능한 CLI 명령어 목록을 테이블로 출력한다."""
     table = Table(show_header=False, box=None, padding=(0, 2))
     table.add_column(style="bold")
     table.add_column()
@@ -84,6 +86,7 @@ def _print_help() -> None:
 
 
 def _show_history(history: list) -> None:
+    """대화 기록을 번호 순서로 출력한다. 내용이 120자를 초과하면 잘라서 표시한다."""
     if not history:
         console.print("[dim]No conversation history.[/dim]")
         return
@@ -95,6 +98,7 @@ def _show_history(history: list) -> None:
 
 
 def _save_history(history: list, filename: str | None = None) -> str:
+    """대화 기록을 JSON 파일로 저장하고 저장된 파일명을 반환한다."""
     if filename is None:
         filename = f"conversation_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
     records = []
@@ -107,6 +111,7 @@ def _save_history(history: list, filename: str | None = None) -> str:
 
 
 def _build_graph(mode: str):
+    """mode 문자열에 따라 적절한 그래프 인스턴스를 생성해 반환한다."""
     if mode == "multi":
         from src.graphs.multiagent import build_multiagent_graph
         return build_multiagent_graph()
@@ -118,7 +123,7 @@ def _build_graph(mode: str):
 
 
 def run_interactive() -> None:
-    """Start an interactive REPL session."""
+    """대화형 REPL 세션을 시작한다. Ctrl+C 또는 /quit 입력 시 종료된다."""
     print_banner()
     mode = "base"
     graph = _build_graph(mode)
@@ -181,6 +186,7 @@ def run_interactive() -> None:
             with console.status("[dim]Thinking…[/dim]", spinner="dots"):
                 state = graph.invoke({"messages": history})
 
+            # 그래프 실행 후 누적된 전체 메시지를 history로 갱신한다
             history = list(state["messages"])
             last = history[-1]
 
@@ -188,6 +194,7 @@ def run_interactive() -> None:
 
 
 def main() -> None:
+    """커맨드라인 인자가 있으면 단발 모드, 없으면 대화형 REPL 모드로 실행한다."""
     if len(sys.argv) > 1:
         run_one_shot(" ".join(sys.argv[1:]))
     else:

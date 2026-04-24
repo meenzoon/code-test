@@ -1,10 +1,11 @@
-"""LLM provider factory — Ollama, OpenAI, or Anthropic."""
+"""LLM 제공자 팩토리 — AI_PROVIDER 환경변수에 따라 Ollama, OpenAI, Anthropic 중 하나를 반환한다."""
 
 import os
 from langchain_core.language_models import BaseChatModel
 
 
 def get_llm() -> BaseChatModel:
+    """환경변수 AI_PROVIDER를 읽어 해당 LLM 객체를 생성해 반환한다."""
     provider = os.getenv("AI_PROVIDER", "ollama").lower()
 
     if provider == "ollama":
@@ -31,7 +32,7 @@ def get_llm() -> BaseChatModel:
             api_key=os.getenv("ANTHROPIC_API_KEY"),
         )
 
-    # Claude Code harness — Ollama OpenAI-compat endpoint, API 키 불필요
+    # Claude Code harness — Ollama OpenAI 호환 엔드포인트를 사용, API 키 불필요
     if provider == "claude-code":
         from langchain_openai import ChatOpenAI
 
@@ -42,7 +43,7 @@ def get_llm() -> BaseChatModel:
             model=os.getenv("CLAUDE_CODE_MODEL", "llama3.2"),
         )
 
-    # Codex harness — Ollama OpenAI-compat endpoint, API 키 불필요
+    # Codex harness — Ollama OpenAI 호환 엔드포인트를 사용, API 키 불필요
     if provider == "codex":
         from langchain_openai import ChatOpenAI
 

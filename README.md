@@ -4,6 +4,8 @@ LangGraph 기반의 CLI 에이전트 프로젝트입니다. 단일 ReAct 그래�
 
 기본 LLM은 `Ollama`이지만 `OpenAI`, `Anthropic`, 그리고 Ollama의 OpenAI 호환 엔드포인트를 이용하는 `claude-code`, `codex` 모드도 지원합니다.
 
+전체 컴포넌트 관계, 그래프 흐름, 도구 레이어, 모듈 의존 관계 등 상세 구조도는 **[ARCHITECTURE.md](./ARCHITECTURE.md)** 를 참고하세요.
+
 ## 주요 기능
 
 - `base`, `stream`, `multi` 3가지 그래프 모드 지원

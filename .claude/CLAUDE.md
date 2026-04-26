@@ -52,7 +52,7 @@ python3 -m src.graphs.multiagent "질문 내용"
 | `/history` | 대화 기록 출력 |
 | `/save [파일명]` | 대화를 JSON으로 저장 (기본: `conversation_<timestamp>.json`) |
 | `/tools` | 사용 가능한 도구 목록 출력 |
-| `/mode [base\|multi\|stream]` | 그래프 모드 전환 (기록 초기화됨) |
+| `/mode [base\|multi\|stream\|coding]` | 그래프 모드 전환 (기록 초기화됨) |
 
 ## 주요 파일
 
@@ -83,6 +83,8 @@ python3 -m src.graphs.multiagent "질문 내용"
 | `run_shell` | shell_tools.py | 셸 명령 실행 (타임아웃 30s, 출력 최대 4KB) |
 | `search_web` | web_tools.py | DuckDuckGo 웹 검색 |
 | `run_python` | code_tools.py | Python 코드 실행 (서브프로세스 격리) |
+| `run_python_with_input` | code_tools.py | stdin 입력이 필요한 Python 코드 실행 |
+| `judge` | code_tools.py | 여러 테스트 케이스 자동 채점 (pass/fail 반환) |
 
 ## LLM 추가 방법
 

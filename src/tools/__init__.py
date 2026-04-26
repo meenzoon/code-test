@@ -1,5 +1,5 @@
 # 도구 패키지 공개 인터페이스 — 각 도구 모듈에서 함수와 목록을 모아 TOOLS 통합 리스트를 만든다
-from src.tools.code_tools import CODE_TOOLS, run_python
+from src.tools.code_tools import CODE_TOOLS, CODING_TOOLS, judge, run_python, run_python_with_input
 from src.tools.file_tools import (
     FILE_TOOLS,
     append_file,
@@ -20,6 +20,7 @@ __all__ = [
     "SHELL_TOOLS",
     "WEB_TOOLS",
     "CODE_TOOLS",
+    "CODING_TOOLS",
     "read_file",
     "write_file",
     "append_file",
@@ -28,4 +29,6 @@ __all__ = [
     "run_shell",
     "search_web",
     "run_python",
+    "run_python_with_input",
+    "judge",
 ]

@@ -81,7 +81,7 @@ def _print_help() -> None:
     table.add_row("/history", "show conversation history")
     table.add_row("/save [file]", "save conversation to JSON (default: conversation_<timestamp>.json)")
     table.add_row("/tools", "list available tools")
-    table.add_row("/mode [base|multi|stream]", "switch graph mode")
+    table.add_row("/mode [base|multi|stream|coding]", "switch graph mode")
     console.print(table)
 
 
@@ -118,6 +118,9 @@ def _build_graph(mode: str):
     if mode == "stream":
         from src.graphs.streaming import build_streaming_graph
         return build_streaming_graph()
+    if mode == "coding":
+        from src.graphs.coding import build_coding_graph
+        return build_coding_graph()
     from src.graphs import build_graph
     return build_graph()
 
@@ -166,13 +169,14 @@ def run_interactive() -> None:
 
             if user_input.startswith("/mode"):
                 parts = user_input.split(maxsplit=1)
-                if len(parts) < 2 or parts[1] not in ("base", "multi", "stream"):
+                if len(parts) < 2 or parts[1] not in ("base", "multi", "stream", "coding"):
                     console.print("[dim]Usage: /mode [base|multi|stream][/dim]")
                 else:
                     mode = parts[1]
                     graph = _build_graph(mode)
                     history.clear()
-                    console.print(f"[dim]Switched to [bold]{mode}[/bold] mode. History cleared.[/dim]")
+                    mode_desc = {"base": "기본", "multi": "멀티에이전트", "stream": "스트리밍", "coding": "코딩 테스트"}
+                    console.print(f"[dim]Switched to [bold]{mode_desc.get(mode, mode)}[/bold] mode. History cleared.[/dim]")
                 continue
 
             if user_input == "/tools":

@@ -61,6 +61,44 @@ uv run ruff format src tests
 
 특정 변경만 빠르게 확인해야 할 때는 관련 테스트를 우선 실행한 뒤, 최종적으로 전체 `pytest`와 `ruff check`를 실행하세요.
 
+## 브랜치, 커밋, PR/MR 규칙
+
+이 저장소는 GitHub Flow에 가까운 trunk-based 방식을 기본으로 합니다.
+
+- `main`을 항상 통합 가능한 trunk로 유지합니다.
+- 장기 유지되는 `develop`, `release/*`, 개인 작업 브랜치는 만들지 않습니다.
+- 모든 작업 브랜치는 최신 `main`에서 짧게 분기하고, 가능한 한 작은 PR/MR로 빠르게 병합합니다.
+- 브랜치 하나는 하나의 목적만 가집니다. 기능 추가, 버그 수정, 리팩터링, 문서 변경을 불필요하게 섞지 마세요.
+- 큰 변경은 여러 개의 작은 PR/MR로 나누고, 중간 상태가 `main`을 깨지 않도록 feature flag, 호환 레이어, 단계적 마이그레이션을 사용하세요.
+
+브랜치 이름은 아래 형식을 사용합니다.
+
+```text
+feat/<short-topic>
+fix/<short-topic>
+refactor/<short-topic>
+docs/<short-topic>
+test/<short-topic>
+chore/<short-topic>
+```
+
+커밋은 작고 되돌리기 쉬운 단위로 작성합니다.
+
+- 커밋 메시지는 가능하면 Conventional Commits 형식을 사용합니다.
+- 예: `feat: add streaming graph option`
+- 예: `fix: handle empty shell command output`
+- 예: `test: cover llm provider selection`
+- 포맷 변경과 동작 변경은 같은 커밋에 섞지 마세요.
+- Codex나 Claude는 사용자가 요청하지 않는 한 임의로 커밋, amend, rebase, push를 수행하지 않습니다.
+
+PR/MR은 리뷰 가능한 크기를 유지합니다.
+
+- PR/MR 설명에는 배경, 변경 내용, 테스트 결과, 리뷰 포인트를 포함합니다.
+- 병합 전 최소 확인 명령은 `uv run pytest`와 `uv run ruff check src tests`입니다.
+- 보안 또는 도구 실행 관련 변경은 `uv run bandit -r src` 결과도 포함합니다.
+- 실패한 검증이 있으면 숨기지 말고 실패 명령, 원인, 후속 조치를 PR/MR 설명에 남깁니다.
+- Codex와 Claude를 함께 사용할 때는 한 에이전트가 맡은 파일 범위를 명확히 하고, 다른 에이전트나 사용자의 변경을 되돌리지 않습니다.
+
 ## 코딩 규칙
 
 - 기존 모듈 경계와 역할을 유지하세요.

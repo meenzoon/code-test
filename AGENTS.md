@@ -20,45 +20,6 @@
 - `tests/`: pytest 테스트
 - `docs/`: 운영 및 워크플로 문서
 
-## 개발 환경
-
-의존성 설치:
-
-```bash
-uv sync --group dev
-```
-
-개발 의존성 없이 설치할 때:
-
-```bash
-uv sync
-```
-
-CLI 실행:
-
-```bash
-uv run agent
-uv run agent "현재 디렉터리 구조를 요약해줘"
-uv run python -m src.main
-```
-
-## 검증 명령
-
-변경 후 가능한 범위에서 아래 명령을 실행하세요.
-
-```bash
-uv run pytest
-uv run ruff check src tests
-uv run ruff format --check src tests
-uv run bandit -r src
-```
-
-포맷이 필요한 경우:
-
-```bash
-uv run ruff format src tests
-```
-
 특정 변경만 빠르게 확인해야 할 때는 관련 테스트를 우선 실행한 뒤, 최종적으로 전체 `pytest`와 `ruff check`를 실행하세요.
 
 ## 브랜치, 커밋, PR/MR 규칙

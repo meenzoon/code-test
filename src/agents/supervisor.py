@@ -1,30 +1,62 @@
-"""Supervisor 에이전트 — 사용자 요청을 분석해 적합한 전문 에이전트로 라우팅한다."""
+"""Supervisor 에이전트 — 사용자 요청을 분석해 적합한 전문 에이전트로 라우팅한다.
+
+LLM이 라우팅 결정을 자유 텍스트로 흘리는 문제를 막기 위해 with_structured_output(Pydantic)을
+사용해 Literal 라벨로 강제한다. 모델이 구조화 출력을 거부하면 토큰 매칭 fallback으로 떨어진다.
+"""
+
+from typing import Literal
 
 from langchain_core.messages import SystemMessage
+from pydantic import BaseModel, Field
 
-# Supervisor가 라우팅 결정을 내릴 때 사용하는 시스템 프롬프트
-# LLM은 반드시 file_agent, shell_agent, FINISH 중 하나의 단어만 반환해야 한다
+# 라우팅 가능한 노드 라벨
+RouteLabel = Literal["file_agent", "shell_agent", "db_agent", "FINISH"]
+_VALID: tuple[RouteLabel, ...] = ("file_agent", "shell_agent", "db_agent", "FINISH")
+
+
+class RouteDecision(BaseModel):
+    """Supervisor가 다음에 호출할 노드 결정."""
+
+    next: RouteLabel = Field(description="다음에 실행할 노드 이름")
+
+
 SUPERVISOR_PROMPT = """You are a supervisor that routes tasks to specialized agents.
 
 Available agents:
-- file_agent: reads, writes, lists files
-- shell_agent: runs shell/terminal commands
-- FINISH: the task is done, answer the user directly
+- file_agent: read/write/list files on the local filesystem
+- shell_agent: run shell/terminal commands
+- db_agent:   query SQL databases (multi-source, read-only)
+- FINISH:     all required information is gathered; stop routing
 
-Respond with ONLY one word: file_agent, shell_agent, or FINISH."""
+Pick exactly one. Prefer FINISH if the latest agent message already answers the user."""
+
+
+def _fallback_parse(text: str) -> RouteLabel:
+    """구조화 출력이 실패했을 때 첫 번째 매칭 토큰을 찾는다."""
+    lowered = text.lower()
+    # 더 구체적인 라벨을 먼저 검사 (db_agent가 'b'로 file에 묻히지 않도록 명시 매칭)
+    for label in _VALID:
+        if label.lower() in lowered:
+            return label
+    return "FINISH"
 
 
 def make_supervisor(llm):
-    """Supervisor 노드 함수를 생성해 반환한다. 반환값은 StateGraph에 노드로 추가된다."""
+    """Supervisor 노드 함수를 생성해 반환한다."""
+    try:
+        structured = llm.with_structured_output(RouteDecision)
+    except Exception:
+        structured = None
+
     def supervisor_node(state: dict) -> dict:
         msgs = [SystemMessage(content=SUPERVISOR_PROMPT)] + list(state["messages"])
+        if structured is not None:
+            try:
+                decision = structured.invoke(msgs)
+                return {"next": decision.next}
+            except Exception:
+                pass
         response = llm.invoke(msgs)
-        decision = response.content.strip().lower()
-        # LLM 응답에서 키워드를 추출해 다음 노드를 결정한다
-        if "file" in decision:
-            return {"next": "file_agent"}
-        if "shell" in decision:
-            return {"next": "shell_agent"}
-        return {"next": "FINISH"}
+        return {"next": _fallback_parse(getattr(response, "content", "") or "")}
 
     return supervisor_node

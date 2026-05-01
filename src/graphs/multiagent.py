@@ -1,28 +1,44 @@
-"""멀티에이전트 그래프 — Supervisor가 작업을 분석해 전문 에이전트에게 위임한다."""
+"""멀티에이전트 그래프 — Supervisor가 작업을 분석해 전문 에이전트(file/shell/db)에게 위임하고,
+완료 시 Synthesizer가 단일 자연어 응답으로 합성한다.
+
+흐름:
+    START → supervisor ─┬─▶ file_agent  ─┐
+                        ├─▶ shell_agent ─┤
+                        ├─▶ db_agent    ─┴─▶ supervisor (재라우팅)
+                        └─FINISH─▶ synthesizer ─▶ END
+"""
 
 from langchain_core.messages import HumanMessage
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 from typing_extensions import Annotated, TypedDict
 
-from src.agents import make_file_agent, make_shell_agent, make_supervisor
+from src.agents import (
+    make_db_agent,
+    make_file_agent,
+    make_shell_agent,
+    make_supervisor,
+    make_synthesizer,
+)
 from src.llm import get_llm
 
 
 class SupervisorState(TypedDict):
     # add_messages 리듀서: 새 메시지를 기존 목록에 누적한다
     messages: Annotated[list, add_messages]
-    # Supervisor가 결정한 다음 노드 이름 (file_agent / shell_agent / FINISH)
+    # Supervisor가 결정한 다음 노드 이름 (file_agent / shell_agent / db_agent / FINISH)
     next: str
 
 
 def build_multiagent_graph():
-    """Supervisor → 전문 에이전트 → Supervisor 순환 구조의 멀티에이전트 그래프를 반환한다."""
+    """Supervisor → 전문 에이전트 → Supervisor 순환 + Synthesizer 종결 그래프를 반환한다."""
     llm = get_llm()
 
     file_agent = make_file_agent(llm)
     shell_agent = make_shell_agent(llm)
+    db_agent = make_db_agent(llm)
     supervisor = make_supervisor(llm)
+    synthesizer = make_synthesizer(llm)
 
     def route(state: SupervisorState) -> str:
         # state["next"]에 저장된 Supervisor의 결정을 그대로 반환해 조건부 엣지에서 사용한다
@@ -37,16 +53,25 @@ def build_multiagent_graph():
     graph.add_node("supervisor", supervisor)
     graph.add_node("file_agent", lambda s: wrap_sub(file_agent, s))
     graph.add_node("shell_agent", lambda s: wrap_sub(shell_agent, s))
+    graph.add_node("db_agent", lambda s: wrap_sub(db_agent, s))
+    graph.add_node("synthesizer", synthesizer)
 
     graph.add_edge(START, "supervisor")
     graph.add_conditional_edges(
         "supervisor",
         route,
-        {"file_agent": "file_agent", "shell_agent": "shell_agent", "FINISH": END},
+        {
+            "file_agent": "file_agent",
+            "shell_agent": "shell_agent",
+            "db_agent": "db_agent",
+            "FINISH": "synthesizer",
+        },
     )
     # 각 에이전트 작업 완료 후 다시 Supervisor로 돌아가 추가 라우팅 여부를 판단한다
     graph.add_edge("file_agent", "supervisor")
     graph.add_edge("shell_agent", "supervisor")
+    graph.add_edge("db_agent", "supervisor")
+    graph.add_edge("synthesizer", END)
 
     return graph.compile()
 

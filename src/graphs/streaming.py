@@ -1,12 +1,13 @@
 """스트리밍 그래프 — 토큰이 생성되는 즉시 출력한다 (Ollama / OpenAI SSE 지원)."""
 
-from typing import Iterator
+from collections.abc import Iterator
+from typing import Annotated
 
 from langchain_core.messages import HumanMessage, SystemMessage
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode
-from typing_extensions import Annotated, TypedDict
+from typing_extensions import TypedDict
 
 from src.llm import get_llm
 from src.tools import TOOLS
@@ -55,7 +56,7 @@ def build_streaming_graph():
 def stream_response(query: str) -> Iterator[str]:
     """단일 쿼리에 대해 스트리밍 텍스트 청크를 순서대로 yield한다."""
     graph = build_streaming_graph()
-    for chunk, metadata in graph.stream(
+    for chunk, _ in graph.stream(
         {"messages": [HumanMessage(content=query)]},
         stream_mode="messages",
     ):
@@ -65,6 +66,7 @@ def stream_response(query: str) -> Iterator[str]:
 
 if __name__ == "__main__":
     import sys
+
     from dotenv import load_dotenv
 
     load_dotenv()

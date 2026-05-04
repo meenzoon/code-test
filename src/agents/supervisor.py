@@ -4,10 +4,13 @@ LLM이 라우팅 결정을 자유 텍스트로 흘리는 문제를 막기 위해
 사용해 Literal 라벨로 강제한다. 모델이 구조화 출력을 거부하면 토큰 매칭 fallback으로 떨어진다.
 """
 
+import logging
 from typing import Literal
 
 from langchain_core.messages import SystemMessage
 from pydantic import BaseModel, Field
+
+logger = logging.getLogger(__name__)
 
 # 라우팅 가능한 노드 라벨
 RouteLabel = Literal["file_agent", "shell_agent", "db_agent", "FINISH"]
@@ -54,8 +57,8 @@ def make_supervisor(llm):
             try:
                 decision = structured.invoke(msgs)
                 return {"next": decision.next}
-            except Exception:
-                pass
+            except Exception as e:
+                logger.warning("structured output failed, falling back to token match: %s", e)
         response = llm.invoke(msgs)
         return {"next": _fallback_parse(getattr(response, "content", "") or "")}
 

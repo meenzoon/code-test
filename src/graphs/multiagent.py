@@ -8,10 +8,12 @@
                         └─FINISH─▶ synthesizer ─▶ END
 """
 
+from typing import Annotated
+
 from langchain_core.messages import HumanMessage
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
-from typing_extensions import Annotated, TypedDict
+from typing_extensions import TypedDict
 
 from src.agents import (
     make_db_agent,
@@ -78,6 +80,7 @@ def build_multiagent_graph():
 
 if __name__ == "__main__":
     import sys
+
     from dotenv import load_dotenv
     from rich.console import Console
     from rich.markdown import Markdown

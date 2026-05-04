@@ -1,12 +1,12 @@
 """DB 전문 에이전트 — 다중 DB 소스에 대한 스키마 탐색과 read-only SQL 실행만 처리한다."""
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from langchain_core.messages import SystemMessage
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode
-from typing_extensions import Annotated, TypedDict
+from typing_extensions import TypedDict
 
 from src.tools import DB_TOOLS
 

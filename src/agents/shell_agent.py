@@ -1,12 +1,12 @@
 """셸 명령 전문 에이전트 — 터미널 명령 실행 작업만 처리한다."""
 
-from typing import Literal
+from typing import Annotated, Literal
 
 from langchain_core.messages import SystemMessage
 from langgraph.graph import END, START, StateGraph
 from langgraph.graph.message import add_messages
 from langgraph.prebuilt import ToolNode
-from typing_extensions import Annotated, TypedDict
+from typing_extensions import TypedDict
 
 from src.tools import SHELL_TOOLS
 

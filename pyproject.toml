@@ -75,6 +75,8 @@ select = [
 ignore = [
     "S101",  # assert 사용 허용 (테스트에서 필요)
     "E501",  # line-too-long — ruff format이 처리
+    "S602",  # shell=True — intentional shell execution tool
+    "S603",  # subprocess variable args — intentional
 ]
 
 [tool.ruff.lint.isort]

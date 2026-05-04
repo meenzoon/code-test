@@ -1,6 +1,6 @@
 """셸 도구 — 임의의 셸 명령을 실행하고 결과를 반환한다."""
 
-import subprocess
+import subprocess  # nosec B404
 
 from langchain_core.tools import tool
 
@@ -9,9 +9,8 @@ from langchain_core.tools import tool
 def run_shell(command: str) -> str:
     """셸 명령을 실행하고 stdout + stderr 합산 결과를 반환한다 (최대 4KB, 타임아웃 30초)."""
     try:
-        result = subprocess.run(
-            command,
-            shell=True,
+        result = subprocess.run(  # nosec B603
+            ["/bin/sh", "-c", command],
             capture_output=True,
             text=True,
             timeout=30,

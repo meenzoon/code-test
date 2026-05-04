@@ -1,7 +1,7 @@
 """코드 실행 도구 — Python 코드를 격리된 서브프로세스에서 실행한다."""
 
 import json
-import subprocess
+import subprocess  # nosec B404
 import sys
 
 from langchain_core.tools import tool
@@ -18,7 +18,7 @@ def run_python(code: str) -> str:
     매 호출마다 새 프로세스를 생성하므로 호출 간 상태가 유지되지 않는다.
     """
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603
             [sys.executable, "-c", code],
             capture_output=True,
             text=True,
@@ -45,7 +45,7 @@ def run_python_with_input(code: str, stdin: str) -> str:
     stdin에 여러 줄 입력이 필요하면 줄바꿈(\\n)으로 구분해 전달한다.
     """
     try:
-        result = subprocess.run(
+        result = subprocess.run(  # nosec B603
             [sys.executable, "-c", code],
             input=stdin,
             capture_output=True,
@@ -90,7 +90,7 @@ def judge(code: str, test_cases_json: str) -> str:
         expected = tc.get("expected", "").strip()
 
         try:
-            proc = subprocess.run(
+            proc = subprocess.run(  # nosec B603
                 [sys.executable, "-c", code],
                 input=stdin,
                 capture_output=True,

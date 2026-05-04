@@ -27,7 +27,7 @@ jobs:
           cache: pip
 
       - name: Install ruff
-        run: pip install "ruff==0.9.7"
+        run: pip install "ruff>=0.9.7"
 
       - name: Ruff check
         run: ruff check src tests

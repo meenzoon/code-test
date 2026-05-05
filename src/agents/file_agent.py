@@ -11,7 +11,9 @@ from typing_extensions import TypedDict
 from src.tools import FILE_TOOLS
 
 # 이 에이전트의 역할을 LLM에 주입하는 시스템 프롬프트
-FILE_AGENT_PROMPT = "You are a file system specialist. Use tools to read/write/list files."
+FILE_AGENT_PROMPT = (
+    "You are a file system specialist. Use tools to read/write/list files."
+)
 
 
 class FileAgentState(TypedDict):

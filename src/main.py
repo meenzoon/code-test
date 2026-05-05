@@ -79,7 +79,10 @@ def _print_help() -> None:
     table.add_row("/quit", "exit")
     table.add_row("/clear", "clear conversation history")
     table.add_row("/history", "show conversation history")
-    table.add_row("/save [file]", "save conversation to JSON (default: conversation_<timestamp>.json)")
+    table.add_row(
+        "/save [file]",
+        "save conversation to JSON (default: conversation_<timestamp>.json)",
+    )
     table.add_row("/tools", "list available tools")
     table.add_row("/mode [base|multi|stream|coding]", "switch graph mode")
     console.print(table)
@@ -106,7 +109,9 @@ def _save_history(history: list, filename: str | None = None) -> str:
         role = type(msg).__name__.replace("Message", "").lower()
         content = msg.content if isinstance(msg.content, str) else str(msg.content)
         records.append({"role": role, "content": content})
-    Path(filename).write_text(json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8")
+    Path(filename).write_text(
+        json.dumps(records, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
     return filename
 
 
@@ -114,14 +119,18 @@ def _build_graph(mode: str):
     """mode 문자열에 따라 적절한 그래프 인스턴스를 생성해 반환한다."""
     if mode == "multi":
         from src.graphs.multiagent import build_multiagent_graph
+
         return build_multiagent_graph()
     if mode == "stream":
         from src.graphs.streaming import build_streaming_graph
+
         return build_streaming_graph()
     if mode == "coding":
         from src.graphs.coding import build_coding_graph
+
         return build_coding_graph()
     from src.graphs import build_graph
+
     return build_graph()
 
 
@@ -169,18 +178,31 @@ def run_interactive() -> None:
 
             if user_input.startswith("/mode"):
                 parts = user_input.split(maxsplit=1)
-                if len(parts) < 2 or parts[1] not in ("base", "multi", "stream", "coding"):
+                if len(parts) < 2 or parts[1] not in (
+                    "base",
+                    "multi",
+                    "stream",
+                    "coding",
+                ):
                     console.print("[dim]Usage: /mode [base|multi|stream][/dim]")
                 else:
                     mode = parts[1]
                     graph = _build_graph(mode)
                     history.clear()
-                    mode_desc = {"base": "기본", "multi": "멀티에이전트", "stream": "스트리밍", "coding": "코딩 테스트"}
-                    console.print(f"[dim]Switched to [bold]{mode_desc.get(mode, mode)}[/bold] mode. History cleared.[/dim]")
+                    mode_desc = {
+                        "base": "기본",
+                        "multi": "멀티에이전트",
+                        "stream": "스트리밍",
+                        "coding": "코딩 테스트",
+                    }
+                    console.print(
+                        f"[dim]Switched to [bold]{mode_desc.get(mode, mode)}[/bold] mode. History cleared.[/dim]"
+                    )
                 continue
 
             if user_input == "/tools":
                 from src.tools import TOOLS
+
                 names = [t.name for t in TOOLS]
                 console.print("Available tools: " + ", ".join(names))
                 continue
@@ -194,7 +216,13 @@ def run_interactive() -> None:
             history = list(state["messages"])
             last = history[-1]
 
-            console.print(Panel(Markdown(last.content), title="[bold green]Assistant[/bold green]", expand=False))
+            console.print(
+                Panel(
+                    Markdown(last.content),
+                    title="[bold green]Assistant[/bold green]",
+                    expand=False,
+                )
+            )
 
 
 def main() -> None:

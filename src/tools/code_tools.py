@@ -113,9 +113,7 @@ def judge(code: str, test_cases_json: str) -> str:
             exp_preview = expected[:80] + ("…" if len(expected) > 80 else "")
             act_preview = actual[:80] + ("…" if len(actual) > 80 else "")
             results.append(
-                f"테스트 {i}: FAIL\n"
-                f"  기대: {exp_preview!r}\n"
-                f"  실제: {act_preview!r}"
+                f"테스트 {i}: FAIL\n  기대: {exp_preview!r}\n  실제: {act_preview!r}"
             )
 
     summary = f"\n결과: {passed}/{len(test_cases)} 통과"

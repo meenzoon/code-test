@@ -11,7 +11,9 @@ from typing_extensions import TypedDict
 from src.tools import SHELL_TOOLS
 
 # 이 에이전트의 역할을 LLM에 주입하는 시스템 프롬프트
-SHELL_AGENT_PROMPT = "You are a shell command specialist. Run commands to fulfill the request."
+SHELL_AGENT_PROMPT = (
+    "You are a shell command specialist. Run commands to fulfill the request."
+)
 
 
 class ShellAgentState(TypedDict):

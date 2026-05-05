@@ -25,6 +25,7 @@ def _find_user_question(messages: list) -> str:
 
 def make_synthesizer(llm):
     """누적된 messages를 받아 단일 AIMessage로 응답하는 노드 함수를 반환한다."""
+
     def synthesize_node(state: dict) -> dict:
         question = _find_user_question(state.get("messages", []))
         # 도구 결과와 어시스턴트 메시지만 모아서 컨텍스트로 제공한다
@@ -34,7 +35,9 @@ def make_synthesizer(llm):
                 evidence_lines.append(f"[tool:{m.name}] {m.content}")
             elif isinstance(m, AIMessage) and m.content:
                 evidence_lines.append(f"[assistant] {m.content}")
-        evidence = "\n".join(evidence_lines) if evidence_lines else "(no evidence collected)"
+        evidence = (
+            "\n".join(evidence_lines) if evidence_lines else "(no evidence collected)"
+        )
 
         prompt_msgs = [
             SystemMessage(content=SYNTHESIZER_PROMPT),

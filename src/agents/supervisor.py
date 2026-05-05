@@ -58,7 +58,9 @@ def make_supervisor(llm):
                 decision = structured.invoke(msgs)
                 return {"next": decision.next}
             except Exception as e:
-                logger.warning("structured output failed, falling back to token match: %s", e)
+                logger.warning(
+                    "structured output failed, falling back to token match: %s", e
+                )
         response = llm.invoke(msgs)
         return {"next": _fallback_parse(getattr(response, "content", "") or "")}
 

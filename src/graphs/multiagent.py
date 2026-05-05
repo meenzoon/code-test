@@ -88,7 +88,11 @@ if __name__ == "__main__":
     load_dotenv()
 
     console = Console()
-    query = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else "현재 디렉터리 목록을 보여주세요."
+    query = (
+        " ".join(sys.argv[1:])
+        if len(sys.argv) > 1
+        else "현재 디렉터리 목록을 보여주세요."
+    )
     console.print(f"[bold]Query:[/bold] {query}\n")
 
     graph = build_multiagent_graph()

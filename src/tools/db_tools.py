@@ -41,7 +41,9 @@ def _resolve(source: str | None) -> tuple[str, str]:
     """소스 이름을 (name, path)로 해석한다. 미지정 시 DB_DEFAULT 또는 첫 항목."""
     sources = _load_sources()
     if not sources:
-        raise ValueError("DB_SOURCES 환경변수가 비어 있습니다. 'name=path,...' 형식으로 설정하세요.")
+        raise ValueError(
+            "DB_SOURCES 환경변수가 비어 있습니다. 'name=path,...' 형식으로 설정하세요."
+        )
     if source is None:
         source = os.getenv("DB_DEFAULT") or next(iter(sources))
     if source not in sources:
@@ -94,8 +96,10 @@ def describe_table(table: str, source: str | None = None) -> str:
             rows = conn.execute(f"PRAGMA table_info({table})").fetchall()
         if not rows:
             return f"[{name}] table {table!r} not found"
-        lines = [f"{r['name']}\t{r['type']}\t{'NULL' if not r['notnull'] else 'NOT NULL'}"
-                 for r in rows]
+        lines = [
+            f"{r['name']}\t{r['type']}\t{'NULL' if not r['notnull'] else 'NOT NULL'}"
+            for r in rows
+        ]
         return f"[{name}.{table}]\n" + "\n".join(lines)
     except Exception as e:
         return f"Error: {e}"
@@ -123,7 +127,11 @@ def run_sql_readonly(sql: str, source: str | None = None) -> str:
             return f"[{name}] (no result columns)"
         header = "\t".join(cols)
         body = "\n".join("\t".join(str(r[c]) for c in cols) for r in rows)
-        suffix = f"\n... ({_MAX_ROWS}+ rows truncated)" if truncated else f"\n({len(rows)} rows)"
+        suffix = (
+            f"\n... ({_MAX_ROWS}+ rows truncated)"
+            if truncated
+            else f"\n({len(rows)} rows)"
+        )
         return f"[{name}]\n{header}\n{body}{suffix}"
     except Exception as e:
         return f"Error: {e}"

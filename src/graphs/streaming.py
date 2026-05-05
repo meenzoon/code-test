@@ -71,7 +71,11 @@ if __name__ == "__main__":
 
     load_dotenv()
 
-    query = " ".join(sys.argv[1:]) if len(sys.argv) > 1 else "현재 디렉터리의 파일 목록을 알려주세요."
+    query = (
+        " ".join(sys.argv[1:])
+        if len(sys.argv) > 1
+        else "현재 디렉터리의 파일 목록을 알려주세요."
+    )
     print(f"Query: {query}\n")
     # 토큰이 도착하는 즉시 flush해 실시간으로 출력한다
     for token in stream_response(query):

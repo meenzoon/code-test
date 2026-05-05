@@ -9,9 +9,8 @@ pytestmark = pytest.mark.unit
 
 
 def test_run_shell_returns_stdout_and_stderr(monkeypatch: pytest.MonkeyPatch) -> None:
-    def fake_run(command: str, *, shell: bool, capture_output: bool, text: bool, timeout: int):
-        assert command == "echo test"
-        assert shell is True
+    def fake_run(command: list, *, capture_output: bool, text: bool, timeout: int):
+        assert command == ["/bin/sh", "-c", "echo test"]
         assert capture_output is True
         assert text is True
         assert timeout == 30

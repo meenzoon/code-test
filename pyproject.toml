@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "langgraph-agent"
 version = "0.1.0"
 description = "LangGraph agent with Ollama and external AI support"
-requires-python = ">=3.11"
+requires-python = ">=3.12"
 dependencies = [
     "langgraph>=0.2.0",
     "langchain>=0.3.0",
